@@ -40,7 +40,7 @@ ehthumbs.db
 Thumbs.db
 
 # Large files (> 25MB)
-# Add specific large files here
+Feature_set/OG_all_seqs.dmnd
 /uploads/*
 /temp/*
 
