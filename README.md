@@ -20,7 +20,7 @@ A web application for radiation resistance prediction in microorganisms based on
 2. Create the conda environment:
    ```
    conda env create -f environment.yml
-   conda activate radpredict
+   conda activate RadPredict
    ```
 
 ## Usage
@@ -74,7 +74,7 @@ If conda tries to install CUDA Toolkit (cudatoolkit-11.1.1) during environment c
 1. **CPU-only Installation (Recommended for most users):**
    ```
    conda env create -f environment.yml --no-deps
-   conda activate radpredict
+   conda activate RadPredict
    conda install --file <(grep -v "xgboost" environment.yml | grep "dependencies:" -A 100) -c conda-forge -c bioconda
    conda install xgboost=1.6.2 -c conda-forge
    ```
