@@ -63,6 +63,32 @@ The prediction model is based on machine learning algorithms trained on radiatio
 - `temp/`: Temporary processing files
 - `Example/`: Example data and results
 
+## Troubleshooting
+
+### CUDA Toolkit Installation Issue
+
+If conda tries to install CUDA Toolkit (cudatoolkit-11.1.1) during environment creation, it is because XGBoost has CUDA as an optional dependency for GPU acceleration.
+
+**Solution Options:**
+
+1. **CPU-only Installation (Recommended for most users):**
+   ```
+   conda env create -f environment.yml --no-deps
+   conda activate radpredict
+   conda install --file <(grep -v "xgboost" environment.yml | grep "dependencies:" -A 100) -c conda-forge -c bioconda
+   conda install xgboost=1.6.2 -c conda-forge
+   ```
+
+2. **Skip CUDA Installation:**
+   ```
+   CONDA_OVERRIDE_CUDA='' conda env create -f environment.yml
+   ```
+
+3. **Allow CUDA Installation (for GPU acceleration):**
+   - If you have an NVIDIA GPU and want to use GPU acceleration, you can proceed with the normal installation.
+
+The application works perfectly well on CPU-only mode, and GPU acceleration is not required for normal operation.
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details. 
