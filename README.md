@@ -23,11 +23,6 @@ A web application for radiation resistance prediction in microorganisms based on
    conda activate radpredict
    ```
 
-3. Install additional dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
-
 ## Usage
 
 1. Start the web application:
@@ -38,6 +33,22 @@ A web application for radiation resistance prediction in microorganisms based on
 2. Access the web interface at `http://localhost:5000` in your browser.
 
 3. Upload your genome file in FASTA format and submit for analysis.
+
+## Example Data
+
+The repository includes example data in the `Example` directory:
+
+- `Example/00`: Contains Deinococcus species examples with analysis results
+- `Example/01`: Contains Bacillus species and PVC examples with analysis results
+
+Each example folder contains:
+- `input/`: Input genome files
+- `results/`: Analysis results including:
+  - Diamond search results
+  - Prokka annotation results
+  - Prediction results
+
+You can use these examples to test the application or as templates for your own analyses.
 
 ## Model Information
 
@@ -50,6 +61,7 @@ The prediction model is based on machine learning algorithms trained on radiatio
 - `static/`: Static web files (CSS, JS)
 - `uploads/`: Temporary upload directory
 - `temp/`: Temporary processing files
+- `Example/`: Example data and results
 
 ## License
 
