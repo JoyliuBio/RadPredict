@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}About - RadPredict{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-10 offset-md-1">
+        <h2 class="refined-heading">About RadPredict</h2>
+        
+        <div class="card card-elegant mb-4">
+            <div class="card-body">
+                <h4 class="refined-heading">Overview</h4>
+                <p>RadPredict is a computational tool designed to predict the radiation resistance of bacteria through genomic analysis. This platform uses machine learning algorithms trained on genomic features to estimate D<sub>10</sub> values, which represent the radiation dose required to reduce a bacterial population by 90%.</p>
+                
+                <p>Developed by the Laboratory of Intelli-manufactureing Food Engineering (LIFE) at Nanjing Tech University, RadPredict aims to provide researchers and industry professionals with a rapid, reliable method to assess radiation resistance without extensive laboratory experimentation.</p>
+            </div>
+        </div>
+        
+        <div class="card card-elegant mb-4">
+            <div class="card-body">
+                <h4 class="refined-heading">Scientific Principle</h4>
+                <p>The prediction model in RadPredict is built upon the correlation between specific genomic features and observed radiation resistance. Our approach involves:</p>
+                
+                <ol>
+                    <li><strong>Feature extraction</strong> - Identification of key genomic markers associated with radiation resistance</li>
+                    <li><strong>Machine learning</strong> - Training of regression models on curated datasets of bacteria with known radiation resistance</li>
+                    <li><strong>Validation</strong> - Testing against experimental data to ensure prediction accuracy</li>
+                </ol>
+                
+                <p>The predictive model primarily focuses on:</p>
+                <ul>
+                    <li>DNA repair mechanisms</li>
+                    <li>Antioxidant systems</li>
+                    <li>Cell wall characteristics</li>
+                    <li>Membrane composition</li>
+                    <li>Protein protection mechanisms</li>
+                </ul>
+                
+                <div class="section-divider"></div>
+                
+                <h5 class="refined-heading">Technical Details</h5>
+                <p>RadPredict employs a two-stage machine learning approach:</p>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="card-title">Feature Selection</h6>
+                                <p class="card-text">Genetic features are selected based on their correlation with radiation resistance in known organisms. This includes specific genes, protein domains, and regulatory elements.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="card-title">Regression Model</h6>
+                                <p class="card-text">A gradient boosting regression model trained on a diverse dataset of bacteria with experimentally determined D<sub>10</sub> values predicts radiation resistance of new samples.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card card-elegant mb-4">
+            <div class="card-body">
+                <h4 class="refined-heading">Usage Guide</h4>
+                
+                <div class="mb-4">
+                    <h5 class="refined-heading">Input Requirements</h5>
+                    <p>RadPredict accepts the following genomic data formats:</p>
+                    <ul>
+                        <li><strong>FASTA (.fasta, .fa)</strong> - Genomic sequence files</li>
+                        <li><strong>FNA (.fna)</strong> - Nucleotide FASTA files</li>
+                        <li><strong>FAA (.faa)</strong> - Protein FASTA files (optional, to skip the annotation step)</li>
+                    </ul>
+                </div>
+                
+                <div class="section-divider"></div>
+                
+                <h5 class="refined-heading">Step-by-Step Process</h5>
+                
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title text-center">1. Upload</h5>
+                                <p class="card-text">Upload your bacterial genome files through the home page. Multiple files can be processed in a single analysis.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title text-center">2. Process</h5>
+                                <p class="card-text">The system will automatically extract features, annotate genes (if necessary), and run the prediction model.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title text-center">3. Results</h5>
+                                <p class="card-text">View the predicted D<sub>10</sub> values and download comprehensive results for further analysis.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info">
+                    <strong>Tip:</strong> For best results, use complete genome sequences rather than draft genomes or partial sequences.
+                </div>
+            </div>
+        </div>
+        
+        <!-- <div class="card card-elegant">
+            <div class="card-body">
+                <h4 class="refined-heading">References</h4>
+                <p>RadPredict is based on research in radiation microbiology and comparative genomics. Key references include:</p>
+                
+                <ul class="list-unstyled">
+                    <li class="mb-2">1. Daly, M. J. (2009). <em>A new perspective on radiation resistance based on Deinococcus radiodurans</em>. Nature Reviews Microbiology, 7(3), 237-245.</li>
+                    <li class="mb-2">2. Krisko, A., & Radman, M. (2013). <em>Biology of extreme radiation resistance: the way of Deinococcus radiodurans</em>. Cold Spring Harbor Perspectives in Biology, 5(7), a012765.</li>
+                    <li class="mb-2">3. Slade, D., & Radman, M. (2011). <em>Oxidative stress resistance in Deinococcus radiodurans</em>. Microbiology and Molecular Biology Reviews, 75(1), 133-191.</li>
+                </ul>
+            </div>
+        </div> -->
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,571 @@
+{% extends 'base.html' %}
+
+{% block title %}Analysis Results - RadPredict{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-10 offset-md-1">
+        <h2 class="refined-heading">Analysis Results <small class="text-muted fs-6">ID: {{ analysis.id }}</small></h2>
+        
+        <div class="card card-elegant">
+            <div class="card-body">
+                <div id="status-container" class="mb-4">
+                    <h4 class="refined-heading">Status: <span id="analysis-status" class="badge {% if analysis.status == 'completed' %}bg-success{% elif analysis.status == 'processing' %}bg-warning{% elif analysis.status == 'failed' %}bg-danger{% elif analysis.status == 'pending' %}bg-secondary{% else %}bg-primary{% endif %}">{{ analysis.status }}</span></h4>
+                    <div class="progress mt-2" id="analysis-progress-container">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                             id="analysis-progress" role="progressbar" 
+                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                             style="width: 0%">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section-divider"></div>
+                
+                <div id="files-container" class="mb-4">
+                    <h4 class="refined-heading">Uploaded Files</h4>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>File Name</th>
+                                    <th>Upload Time</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="files-table-body">
+                                {% for file in analysis.files %}
+                                <tr>
+                                    <td>{{ file.name }}</td>
+                                    <td>
+                                        <span class="utc-time" data-timestamp="{{ file.uploaded_at.isoformat() }}">
+                                            {{ file.uploaded_at.strftime('%Y-%m-%d %H:%M:%S') }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="file-status badge 
+                                              {% if analysis.status == 'completed' %}
+                                                  bg-success
+                                              {% elif analysis.status == 'processing' %}
+                                                  bg-warning
+                                              {% elif analysis.status == 'failed' %}
+                                                  bg-danger
+                                              {% elif analysis.status == 'pending' %}
+                                                  bg-secondary
+                                              {% else %}
+                                                  bg-primary
+                                              {% endif %}">
+                                            {% if analysis.status == 'completed' %}
+                                                Completed
+                                            {% elif analysis.status == 'processing' %}
+                                                Processing
+                                            {% elif analysis.status == 'failed' %}
+                                                Failed
+                                            {% elif analysis.status == 'pending' %}
+                                                Pending
+                                            {% endif %}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div id="results-container" class="d-none">
+                    <h4>Results</h4>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Analysis Results</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="unified-results">
+                                <p class="text-muted">Loading results...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 mt-4">
+                        <button class="btn btn-success" id="download-button" disabled>
+                            Download All Results
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-3 d-none" id="processing-message">
+                    Your files are being processed. This may take several minutes. 
+                    You can safely leave this page and return later using the analysis ID.
+                </div>
+                
+                <div class="alert alert-danger mt-3 d-none" id="error-message">
+                    An error occurred during processing. Please try again later.
+                </div>
+                
+                <div class="d-grid gap-2 mt-3" id="action-buttons-container">
+                    <!-- Analysis button, displayed when analysis is not started -->
+                    <button class="btn btn-deep-blue" type="button" id="run-analysis-now" 
+                            {% if analysis.status == 'processing' or analysis.status == 'completed' %}style="display:none;"{% endif %} style="background-color: #5078c2 !important; border-color: #5078c2 !important;">
+                        Run Analysis Now
+                    </button>
+                    
+                    <!-- View progress button, displayed when analysis is started or completed -->
+                    <button class="btn btn-deep-blue" type="button" data-bs-toggle="modal" data-bs-target="#progressModal"
+                            id="view-progress-button"
+                            {% if analysis.status != 'processing' and analysis.status != 'completed' %}style="display:none;"{% endif %}>
+                        View Detailed Progress
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="progressModal" tabindex="-1" aria-labelledby="progressModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="progressModalLabel">Processing Progress</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="progress mb-3">
+                    <div class="progress-bar" id="progress-bar-modal" role="progressbar" style="width: 0%;" 
+                         aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                </div>
+                
+                <div class="card mb-3">
+                    <div class="card-header">
+                        Latest Status
+                    </div>
+                    <div class="card-body" id="latest-status">
+                        Loading...
+                    </div>
+                </div>
+                
+                <h6>Processing Log</h6>
+                <div class="list-group" id="progress-steps">
+                    <div class="list-group-item text-center">
+                        <div class="spinner-border spinner-border-sm" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        Loading progress information...
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-deep-blue" id="refresh-progress">Refresh</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const analysisId = "{{ analysis.id }}";
+    const statusBadge = document.getElementById('analysis-status');
+    const progressBar = document.getElementById('analysis-progress');
+    const resultsContainer = document.getElementById('results-container');
+    const processingMessage = document.getElementById('processing-message');
+    const errorMessage = document.getElementById('error-message');
+    const downloadButton = document.getElementById('download-button');
+    
+    // Update status periodically
+    function updateStatus() {
+        fetch(`/api/status/${analysisId}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log("Status update:", data); // Debugging
+                
+                // Update status badge
+                statusBadge.textContent = data.status;
+                
+                // Update status badge color
+                statusBadge.className = 'badge ';
+                if (data.status === 'completed') {
+                    statusBadge.className += 'bg-success';
+                    
+                    // Remove animation and stripe effect from progress bar
+                    progressBar.classList.remove('progress-bar-animated');
+                    progressBar.classList.remove('progress-bar-striped');
+                    
+                    // Add light blue style for completed status
+                    progressBar.classList.add('progress-bar-completed');
+                    
+                    progressBar.style.width = '100%';
+                    progressBar.textContent = '100%';
+                    
+                    // Display results
+                    resultsContainer.classList.remove('d-none');
+                    processingMessage.classList.add('d-none');
+                    
+                    // Switch button display
+                    document.getElementById('run-analysis-now').style.display = 'none';
+                    document.getElementById('view-progress-button').style.display = 'block';
+                    
+                    // Enable download button
+                    downloadButton.disabled = false;
+                    
+                    // Load unified results
+                    loadUnifiedResults(analysisId);
+                    
+                    // Stop polling
+                    clearInterval(statusInterval);
+                } else if (data.status === 'processing') {
+                    statusBadge.className += 'bg-warning';
+                    progressBar.style.width = '20%';
+                    progressBar.textContent = 'Processing...';
+                    
+                    // Switch button display
+                    document.getElementById('run-analysis-now').style.display = 'none';
+                    document.getElementById('view-progress-button').style.display = 'block';
+                } else if (data.status === 'failed') {
+                    statusBadge.className += 'bg-danger';
+                    errorMessage.classList.remove('d-none');
+                    processingMessage.classList.add('d-none');
+                    
+                    // Stop polling
+                    clearInterval(statusInterval);
+                } else {
+                    statusBadge.className += 'bg-secondary';
+                }
+                
+                // Update file statuses
+                const fileStatusBadges = document.querySelectorAll('.file-status');
+                fileStatusBadges.forEach((badge, index) => {
+                    if (index < data.files.length) {
+                        const file = data.files[index];
+                        
+                        // Update file status based on analysis status
+                        if (data.status === 'completed') {
+                            // When analysis is completed, all files show as Completed
+                            badge.textContent = 'Completed';
+                            badge.className = 'file-status badge bg-success';
+                        } else if (data.status === 'processing') {
+                            // While analysis is processing, show as Processing
+                            badge.textContent = 'Processing';
+                            badge.className = 'file-status badge bg-warning';
+                        } else {
+                            // 修改这里：改为灰色
+                            badge.textContent = 'Pending';
+                            badge.className = 'file-status badge bg-secondary'; // 改为 bg-secondary
+                        }
+                    }
+                });
+                
+                // Add button state update
+                updateAnalysisButtonState(data.status);
+            })
+            .catch(error => {
+                console.error('Error fetching status:', error);
+                errorMessage.classList.remove('d-none');
+                errorMessage.textContent = 'Error updating status: ' + error.message;
+            });
+    }
+    
+    // Download results
+    downloadButton.addEventListener('click', function() {
+        window.location.href = `/api/download/${analysisId}`;
+    });
+    
+    // Initial status update
+    updateStatus();
+    
+    // Poll for status updates every 5 seconds
+    const statusInterval = setInterval(updateStatus, 5000);
+
+    // 修改updateProgressDetails函数
+    function updateProgressDetails() {
+        fetch(`/api/progress/${analysisId}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log("Progress update:", data);
+                
+                // Update progress bar
+                const progressBar = document.getElementById('progress-bar-modal');
+                progressBar.style.width = `${data.progress}%`;
+                progressBar.textContent = `${data.progress}%`;
+                progressBar.setAttribute('aria-valuenow', data.progress);
+                
+                // Update latest status
+                const latestStatus = document.getElementById('latest-status');
+                if (data.steps.length > 0) {
+                    const latest = data.steps[0];
+                    let statusClass = '';
+                    if (latest.status === 'success') statusClass = 'text-success';
+                    else if (latest.status === 'failed') statusClass = 'text-danger';
+                    else statusClass = 'text-warning';
+                    
+                    latestStatus.innerHTML = `
+                        <h5 class="${statusClass}">${latest.step_name}</h5>
+                        <p>${latest.message}</p>
+                        <small class="text-muted">
+                            ${formatDateTime(latest.timestamp)}
+                        </small>
+                    `;
+                } else {
+                    latestStatus.innerHTML = '<p>No progress information available</p>';
+                }
+                
+                // Update steps list
+                const stepsContainer = document.getElementById('progress-steps');
+                if (data.steps.length > 0) {
+                    let stepsHtml = '';
+                    
+                    // Check overall analysis status
+                    const isAnalysisCompleted = data.status === 'completed';
+                    
+                    data.steps.forEach(step => {
+                        let statusClass = '';
+                        let statusIcon = '';
+                        
+                        // If analysis is completed, all steps should be marked as completed
+                        if (isAnalysisCompleted || step.status === 'success') {
+                            statusClass = 'list-group-item-success';
+                            statusIcon = '<i class="bi bi-check-circle-fill text-success"></i>';
+                        } else if (step.status === 'failed') {
+                            statusClass = 'list-group-item-danger';
+                            statusIcon = '<i class="bi bi-x-circle-fill text-danger"></i>';
+                        } else {
+                            statusClass = 'list-group-item-warning';
+                            statusIcon = '<div class="spinner-border spinner-border-sm text-warning" role="status"></div>';
+                        }
+                        
+                        stepsHtml += `
+                            <div class="list-group-item ${statusClass}">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">${step.step_name}</h6>
+                                    <small>${formatDateTime(step.timestamp)}</small>
+                                </div>
+                                <p class="mb-1">${step.message}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small>${step.file_id ? 'File ID: ' + step.file_id : 'General step'}</small>
+                                    <span>${statusIcon}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    stepsContainer.innerHTML = stepsHtml;
+                } else {
+                    stepsContainer.innerHTML = '<div class="list-group-item">No progress steps recorded yet</div>';
+                }
+
+                // Add code to handle progress bar completion status in the updateProgressDetails function
+                if (data.progress >= 100) {
+                    progressBar.classList.add('progress-bar-completed');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching progress:', error);
+                document.getElementById('progress-steps').innerHTML = 
+                    `<div class="list-group-item list-group-item-danger">Error loading progress: ${error.message}</div>`;
+            });
+    }
+
+    // Add progress refresh button event
+    document.getElementById('refresh-progress').addEventListener('click', updateProgressDetails);
+
+    // When the modal window is opened, automatically get progress
+    const progressModal = document.getElementById('progressModal');
+    progressModal.addEventListener('shown.bs.modal', updateProgressDetails);
+
+    // If analysis is processing, automatically refresh every 3 seconds
+    let progressInterval;
+    progressModal.addEventListener('shown.bs.modal', function() {
+        if (statusBadge.textContent === 'processing') {
+            progressInterval = setInterval(updateProgressDetails, 3000);
+        }
+    });
+
+    // When the modal window is closed, stop automatic refresh
+    progressModal.addEventListener('hidden.bs.modal', function() {
+        clearInterval(progressInterval);
+    });
+
+    // Replace updateAnalysisButtonState function
+    function updateAnalysisButtonState(status) {
+        const runButton = document.getElementById('run-analysis-now');
+        const progressButton = document.getElementById('view-progress-button');
+        
+        if (!runButton || !progressButton) return;
+        
+        if (status === 'processing' || status === 'completed') {
+            // Hide start button
+            runButton.style.display = 'none';
+            // Show progress button
+            progressButton.style.display = 'block';
+        } else {
+            // Show start button, hide progress button in other states
+            runButton.style.display = 'block';
+            progressButton.style.display = 'none';
+        }
+    }
+
+    // Modify the click event handling for the run analysis button
+    document.getElementById('run-analysis-now').addEventListener('click', function() {
+        // Check analysis status again to prevent duplicate analysis
+        fetch(`/api/status/${analysisId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'processing' || data.status === 'completed') {
+                    alert('This analysis has already been ' + data.status + '. Cannot start again.');
+                    updateAnalysisButtonState(data.status); // Update button state
+                    return;
+                }
+                
+                // Continue with analysis
+                this.textContent = 'Starting Analysis...';
+                this.disabled = true;
+                
+                // Show processing information
+                document.getElementById('processing-message').classList.remove('d-none');
+                
+                fetch(`/run_analysis_now/${analysisId}`, { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Hide start button, show progress button
+                            document.getElementById('run-analysis-now').style.display = 'none';
+                            document.getElementById('view-progress-button').style.display = 'block';
+                        } else {
+                            alert('Failed to start analysis: ' + data.error);
+                            // If failed, keep buttons visible, hide processing information
+                            this.textContent = 'Run Analysis Now';
+                            this.disabled = false;
+                            document.getElementById('processing-message').classList.add('d-none');
+                        }
+                    })
+                    .catch(error => {
+                        alert('Error: ' + error.message);
+                        this.textContent = 'Run Analysis Now';
+                        this.disabled = false;
+                        // When an error occurs, hide processing information
+                        document.getElementById('processing-message').classList.add('d-none');
+                    });
+            })
+            .catch(error => {
+                alert('Error checking analysis status: ' + error.message);
+            });
+    });
+
+    // Set button state immediately when the page loads
+    updateAnalysisButtonState("{{ analysis.status }}");
+
+    // Add function to load unified results
+    function loadUnifiedResults(analysisId) {
+        const resultContainer = document.getElementById('unified-results');
+        if (!resultContainer) return;
+        
+        // Get analysis results from API
+        fetch(`/api/analysis_results/${analysisId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    resultContainer.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                    return;
+                }
+                
+                // Show results
+                let resultHtml = '';
+                
+                // Show prediction results table
+                if (data.prediction_csv) {
+                    resultHtml += `<h5>Prediction Results</h5>
+                                   <div class="table-responsive">
+                                     <table class="table table-striped table-sm">
+                                       <thead>
+                                         <tr>
+                                           <th>Sample</th>
+                                           <th>Predicted D<sub>10</sub> value (kGy)</th>
+                                           <th>Resistance</th>
+                                         </tr>
+                                       </thead>
+                                       <tbody>`;
+                    
+                    // Add prediction data rows
+                    data.prediction_csv.forEach(row => {
+                        const resistance = row.Predicted_D10 >= 1 ? 
+                            '<span class="badge bg-success">Resistant</span>' : 
+                            '<span class="badge bg-warning">Sensitive</span>';
+                        
+                        resultHtml += `<tr>
+                                        <td>${row.Sample}</td>
+                                        <td>${parseFloat(row.Predicted_D10).toFixed(2)}</td>
+                                        <td>${resistance}</td>
+                                       </tr>`;
+                    });
+                    
+                    resultHtml += `</tbody></table></div>`;
+                }
+                
+                // Show visualization images
+                if (data.visualization_images && data.visualization_images.length > 0) {
+                    resultHtml += `<h5 class="mt-4">Visualization</h5>
+                                   <div class="row">`;
+                    
+                    data.visualization_images.forEach(img => {
+                        resultHtml += `<div class="col-md-6">
+                                        <div class="card mb-3">
+                                          <img src="${img.url}" class="card-img-top" alt="D10 Visualization">
+                                        </div>
+                                       </div>`;
+                    });
+                    
+                    resultHtml += `</div>`;
+                }
+                
+                resultContainer.innerHTML = resultHtml;
+            })
+            .catch(error => {
+                console.error('Error loading results:', error);
+                resultContainer.innerHTML = `<div class="alert alert-danger">Error loading results: ${error.message}</div>`;
+            });
+    }
+
+    // If the current status is already completed, remove the progress bar animation and load results immediately
+    if ("{{ analysis.status }}" === "completed") {
+        // Remove the animation and stripe effect from the progress bar
+        document.getElementById('analysis-progress').classList.remove('progress-bar-animated');
+        document.getElementById('analysis-progress').classList.remove('progress-bar-striped');
+        
+        document.getElementById('analysis-progress').style.width = '100%';
+        document.getElementById('analysis-progress').textContent = '100%';
+        
+        document.getElementById('results-container').classList.remove('d-none');
+        document.getElementById('processing-message').classList.add('d-none');
+        loadUnifiedResults("{{ analysis.id }}");
+    }
+
+    // Modify formatDateTime function to use global function
+    function formatDateTime(timestamp) {
+        return formatUTCtoLocal(timestamp);
+    }
+
+    // Update the code to query the upload time element, add explicit debugging
+    document.querySelectorAll('.upload-time').forEach(el => {
+        const timestamp = el.getAttribute('data-timestamp');
+        console.log('Original timestamp:', timestamp);
+        const formattedTime = formatDateTime(timestamp);
+        console.log('Formatted time:', formattedTime);
+        el.textContent = formattedTime;
+    });
+
+    // Record time zone information on page load - helpful for debugging time zone issues
+    console.log('Browser time zone:', Intl.DateTimeFormat().resolvedOptions().timeZone);
+    console.log('Local time:', new Date().toLocaleString());
+    console.log('UTC time:', new Date().toUTCString());
+
+    // Set processing message display based on initial status
+    const currentStatus = "{{ analysis.status }}";
+    if (currentStatus === 'processing') {
+        document.getElementById('processing-message').classList.remove('d-none');
+    } else if (currentStatus !== 'completed') {
+        document.getElementById('processing-message').classList.add('d-none');
+    }
+});
+</script>
+{% endblock %}

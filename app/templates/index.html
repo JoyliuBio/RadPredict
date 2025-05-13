@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block title %}Radiation Resistance Prediction - Upload Files{% endblock %}
+
+{% block content %}
+<!-- Hero section - fill page width, remove top spacing -->
+<div class="hero-section py-5 mb-4" style="margin-left: -50vw; margin-right: -50vw; left: 50%; width: 100vw; position: relative; background-image: radial-gradient(circle at center, var(--deep-blue-light) 0%, var(--deep-blue) 60%, var(--deep-blue-dark) 100%); margin-top: -1.5rem;">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 mx-auto text-center text-white">
+                <h1 class="display-4 fw-bold">RadPredict</h1>
+                <p class="lead">Radiation Resistance Prediction Tool</p>
+                <p class="mb-4">An rapid tool for predicting bacterial radiation resistance through genomic analysis.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Re-designed upload section -->
+<div id="upload-section">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h2 class="refined-heading">Genome Analysis</h2>
+            
+            <div class="card card-elegant">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-lg-6 mb-4 mb-lg-0">
+                            <h4 class="text-deep-blue mb-3">Upload Your Files</h4>
+                            <p class="text-muted">Upload bacterial genome files to predict radiation resistance. Our model will analyze your datas and provide predicted D<sub>10</sub> values.</p>
+                            <div class="d-flex align-items-center mt-4 mb-3">
+                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                    <i class="bi bi-check-circle text-deep-blue"></i>
+                                </div>
+                                <div>
+                                    <p class="mb-0 fw-medium">Multiple file support</p>
+                                    <small class="text-muted">Analyze several genomes at once</small>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                    <i class="bi bi-lightning-charge text-deep-blue"></i>
+                                </div>
+                                <div>
+                                    <p class="mb-0 fw-medium">Rapid analysis</p>
+                                    <small class="text-muted">Results typically ready in minutes</small>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                    <i class="bi bi-file-earmark-text text-deep-blue"></i>
+                                </div>
+                                <div>
+                                    <p class="mb-0 fw-medium">Supported formats</p>
+                                    <small class="text-muted">FASTA, FA, FNA, FAA</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-6">
+                            <div class="p-4 bg-light rounded-3">
+                                <form id="upload-form" enctype="multipart/form-data">
+                                    <div class="text-center mb-4">
+                                        <div class="d-inline-flex bg-white rounded-circle shadow-sm justify-content-center align-items-center" style="width: 70px; height: 70px;">
+                                            <i class="bi bi-cloud-arrow-up text-deep-blue" style="font-size: 2rem;"></i>
+                                        </div>
+                                        <h5 style="margin-top: 10px;">Select genome files</h5>
+                                        <p class="text-muted small">Drag files here or click to browse</p>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <input type="file" class="form-control" id="files" name="files" multiple required>
+                                    </div>
+                                    
+                                    <div id="file-list" class="mb-3 d-none">
+                                        <h6 class="text-deep-blue">Selected Files:</h6>
+                                        <ul class="list-group list-group-flush" id="selected-files">
+                                            <!-- Selected files will appear here -->
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-deep-blue py-2" id="upload-button">
+                                            <i class="bi bi-arrow-right-circle me-2"></i>Upload and Start Analysis
+                                        </button>
+                                    </div>
+                                </form>
+                                
+                                <div class="progress mt-4 d-none" id="upload-progress-container">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                         id="upload-progress" role="progressbar" 
+                                         aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                    </div>
+                                </div>
+                                
+                                <div class="alert alert-success mt-3 d-none" id="upload-success">
+                                    <i class="bi bi-check-circle-fill me-2"></i> Files uploaded successfully! Processing your data...
+                                </div>
+                                
+                                <div class="alert alert-danger mt-3 d-none" id="upload-error">
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i> An error occurred while uploading your files.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section-divider"></div>
+            
+            <h3 class="refined-heading" style="color: #1b1b1b;">How It Works</h3>
+            <div class="card card-elegant mt-3">
+                <div class="card-body">
+                    <ol>
+                        <li>Upload your bacterial genome feature files (FASTA format)</li>
+                        <li>If you have the annotation files (FAA format), you can upload them to escape the annotation step</li>
+                        <li>Our system will process your files and predict radiation resistance (D<sub>10</sub> values)</li>
+                        <li>View the analysis results with visualizations</li>
+                        <li>Download the complete analysis package when ready</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadForm = document.getElementById('upload-form');
+    const fileInput = document.getElementById('files');
+    const fileList = document.getElementById('file-list');
+    const selectedFiles = document.getElementById('selected-files');
+    const uploadButton = document.getElementById('upload-button');
+    const progressContainer = document.getElementById('upload-progress-container');
+    const progressBar = document.getElementById('upload-progress');
+    const uploadSuccess = document.getElementById('upload-success');
+    const uploadError = document.getElementById('upload-error');
+    
+    // Show selected files
+    fileInput.addEventListener('change', function() {
+        selectedFiles.innerHTML = '';
+        
+        if (this.files.length > 0) {
+            fileList.classList.remove('d-none');
+            
+            for (let i = 0; i < this.files.length; i++) {
+                const file = this.files[i];
+                const listItem = document.createElement('li');
+                listItem.className = 'list-group-item';
+                listItem.textContent = `${file.name} (${formatFileSize(file.size)})`;
+                selectedFiles.appendChild(listItem);
+            }
+        } else {
+            fileList.classList.add('d-none');
+        }
+    });
+    
+    // Handle form submission
+    uploadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (fileInput.files.length === 0) {
+            alert('Please select at least one file to upload.');
+            return;
+        }
+        
+        // Prepare form data
+        const formData = new FormData();
+        for (let i = 0; i < fileInput.files.length; i++) {
+            formData.append('files', fileInput.files[i]);
+        }
+        
+        // Reset UI
+        uploadError.classList.add('d-none');
+        uploadSuccess.classList.add('d-none');
+        
+        // Show progress bar
+        progressContainer.classList.remove('d-none');
+        progressBar.style.width = '0%';
+        progressBar.textContent = '0%';
+        uploadButton.disabled = true;
+        
+        // Upload files
+        const xhr = new XMLHttpRequest();
+        
+        xhr.open('POST', '/upload', true);
+        
+        xhr.upload.onprogress = function(e) {
+            if (e.lengthComputable) {
+                const percentComplete = Math.round((e.loaded / e.total) * 100);
+                progressBar.style.width = percentComplete + '%';
+                progressBar.textContent = percentComplete + '%';
+            }
+        };
+        
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText);
+                uploadSuccess.classList.remove('d-none');
+                uploadSuccess.textContent = response.message;
+                
+                // Redirect to results page after a short delay
+                setTimeout(function() {
+                    window.location.href = response.redirect;
+                }, 1500);
+            } else {
+                let errorMsg = 'An error occurred while uploading your files.';
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.error) {
+                        errorMsg = response.error;
+                    }
+                } catch (e) {
+                    console.error('Failed to parse error response', e);
+                }
+                
+                uploadError.classList.remove('d-none');
+                uploadError.textContent = errorMsg;
+                uploadButton.disabled = false;
+            }
+        };
+        
+        xhr.onerror = function() {
+            uploadError.classList.remove('d-none');
+            uploadError.textContent = 'Network error occurred. Please try again.';
+            uploadButton.disabled = false;
+        };
+        
+        xhr.send(formData);
+    });
+    
+    // Utility function to format file size
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+
+{% block title %}My Analysis - RadPredict{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="refined-heading mb-0">My Analysis</h2>
+            <div id="action-buttons" class="d-none">
+                <button id="delete-selected" class="btn btn-light-danger" style="background-color: #e2e3e5; color: #41464b; border: none;">
+                    <i class="bi bi-trash me-1"></i>Delete Selected
+                </button>
+                <button id="delete-all" class="btn btn-light-secondary ms-2" style="background-color: #e2e3e5; color: #41464b; border: none;">
+                    <i class="bi bi-trash-fill me-1"></i>Delete All
+                </button>
+            </div>
+        </div>
+        
+        {% if analyses %}
+        <div class="card card-elegant">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th width="40">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="select-all">
+                                    </div>
+                                </th>
+                                <th>ID</th>
+                                <th>Created</th>
+                                <th>Status</th>
+                                <th>Files</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for analysis in analyses %}
+                            <tr>
+                                <td>
+                                    <div class="form-check">
+                                        <input class="form-check-input analysis-select" type="checkbox" data-id="{{ analysis.id }}">
+                                    </div>
+                                </td>
+                                <td>{{ analysis.id[:8] }}...</td>
+                                <td>
+                                    <span class="utc-time" data-timestamp="{{ analysis.created_at.isoformat() }}">
+                                        {{ analysis.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill {% if analysis.status == 'completed' %}bg-success{% elif analysis.status == 'processing' %}bg-warning{% elif analysis.status == 'failed' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                        {{ analysis.status }}
+                                    </span>
+                                </td>
+                                <td>{{ analysis.files|length }}</td>
+                                <td>
+                                    <a href="{{ url_for('main.analysis_status', analysis_id=analysis.id) }}" class="btn btn-sm" style="background-color: #4166a1; border-color: #4166a1; color: white;">
+                                        <i class="bi bi-eye-fill me-1"></i>View
+                                    </a>
+                                    {% if analysis.status == 'completed' %}
+                                    <a href="{{ url_for('main.download_results', analysis_id=analysis.id) }}" class="btn btn-sm ms-1" style="background-color: #adadad; border-color: #adadad; color: white;">
+                                        <i class="bi bi-download me-1"></i>Download
+                                    </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            No analyses found. <a href="{{ url_for('main.index') }}">Upload files</a> to start a new analysis.
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- 确认删除模态框 -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="delete-confirm-message">
+                Are you sure you want to delete the selected analyses? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirm-delete">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAll = document.getElementById('select-all');
+    const analysisCheckboxes = document.querySelectorAll('.analysis-select');
+    const deleteSelected = document.getElementById('delete-selected');
+    const deleteAll = document.getElementById('delete-all');
+    const actionButtons = document.getElementById('action-buttons');
+    const deleteConfirmModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+    const confirmDeleteBtn = document.getElementById('confirm-delete');
+    const deleteConfirmMessage = document.getElementById('delete-confirm-message');
+    
+    let deleteMode = 'selected'; // 'selected' or 'all'
+    
+    // 显示操作按钮（如果有分析记录）
+    if (analysisCheckboxes.length > 0) {
+        actionButtons.classList.remove('d-none');
+    }
+    
+    // 全选/取消全选
+    selectAll.addEventListener('change', function() {
+        const checked = this.checked;
+        analysisCheckboxes.forEach(checkbox => {
+            checkbox.checked = checked;
+        });
+        updateDeleteButtonState();
+    });
+    
+    // 监听每个复选框的变化
+    analysisCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            updateSelectAllState();
+            updateDeleteButtonState();
+        });
+    });
+    
+    // 更新全选复选框状态
+    function updateSelectAllState() {
+        const checkedCount = document.querySelectorAll('.analysis-select:checked').length;
+        selectAll.checked = checkedCount === analysisCheckboxes.length && analysisCheckboxes.length > 0;
+        selectAll.indeterminate = checkedCount > 0 && checkedCount < analysisCheckboxes.length;
+    }
+    
+    // 更新删除按钮状态
+    function updateDeleteButtonState() {
+        const anyChecked = document.querySelectorAll('.analysis-select:checked').length > 0;
+        deleteSelected.disabled = !anyChecked;
+    }
+    
+    // 删除选中项
+    deleteSelected.addEventListener('click', function() {
+        deleteMode = 'selected';
+        deleteConfirmMessage.textContent = 'Are you sure you want to delete the selected analyses? This action cannot be undone.';
+        deleteConfirmModal.show();
+    });
+    
+    // 删除全部
+    deleteAll.addEventListener('click', function() {
+        deleteMode = 'all';
+        deleteConfirmMessage.textContent = 'Are you sure you want to delete ALL analyses? This action cannot be undone.';
+        deleteConfirmModal.show();
+    });
+    
+    // 确认删除
+    confirmDeleteBtn.addEventListener('click', function() {
+        let analysisIds = [];
+        
+        if (deleteMode === 'selected') {
+            document.querySelectorAll('.analysis-select:checked').forEach(checkbox => {
+                analysisIds.push(checkbox.getAttribute('data-id'));
+            });
+        } else if (deleteMode === 'all') {
+            document.querySelectorAll('.analysis-select').forEach(checkbox => {
+                analysisIds.push(checkbox.getAttribute('data-id'));
+            });
+        }
+        
+        if (analysisIds.length === 0) {
+            deleteConfirmModal.hide();
+            return;
+        }
+        
+        // 发送删除请求
+        fetch('/delete_analyses', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ analysis_ids: analysisIds }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // 删除成功，刷新页面
+                location.reload();
+            } else {
+                alert('Failed to delete analyses: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while deleting analyses.');
+        })
+        .finally(() => {
+            deleteConfirmModal.hide();
+        });
+    });
+    
+    // 初始化状态
+    updateDeleteButtonState();
+});
+</script>
+{% endblock %} 
