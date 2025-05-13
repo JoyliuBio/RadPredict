@@ -39,8 +39,6 @@ ENV/
 ehthumbs.db
 Thumbs.db
 
-# Large files (> 25MB)
-Feature_set/OG_all_seqs.dmnd
 /uploads/*
 /temp/*
 
