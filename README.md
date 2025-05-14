@@ -1,6 +1,6 @@
 # RadPredict
 
-A web application for radiation resistance prediction in microorganisms based on genome analysis.
+A web application for radiation resistance prediction in bacteria based on genome sequence.
 
 ## Features
 
@@ -70,12 +70,12 @@ If you're having issues with Git LFS, you can manually download the large file:
 
 2. Replace the existing file in your local repository:
    - Navigate to the `Feature_set` directory in your cloned repository
-   - The existing file is likely only a few Bytes (LFS pointer file)
+   - The existing file is likely only a few KB (LFS pointer file)
    - Replace it with the downloaded file (should be ~187MB)
    - Verify replacement was successful by checking the file size
 
 3. If the program reports an error about the DIAMOND database file, check:
-   - File size should be approximately 187MB, not just a few Bytes
+   - File size should be approximately 187MB, not just a few KB
    - File name is exactly `OG_all_seqs.dmnd` (case sensitive)
    - File is in the correct location: `RadPredict/Feature_set/OG_all_seqs.dmnd`
 
