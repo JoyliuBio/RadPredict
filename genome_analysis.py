@@ -38,6 +38,29 @@ def check_dependencies():
             print(f"✗ {tool} is not installed. Please install it before proceeding.")
             sys.exit(1)
 
+def check_diamond_db(diamond_db_path):
+    """Verify that the Diamond database file exists and has the correct size"""
+    if not os.path.exists(diamond_db_path):
+        print(f"ERROR: Diamond database file not found: {diamond_db_path}")
+        print("Please make sure to:")
+        print("1. Install Git LFS and run 'git lfs pull' to download large files, or")
+        print("2. Manually download the file from GitHub (see README.md for instructions)")
+        print("\nFor more information, see the 'Large Files (Git LFS)' section in README.md")
+        sys.exit(1)
+    
+    # Check if the file size is too small (LFS pointer file is typically a few hundred bytes)
+    file_size = os.path.getsize(diamond_db_path)
+    if file_size < 10000000:  # Less than 10MB
+        print(f"WARNING: Diamond database file appears to be a Git LFS pointer (size: {file_size} bytes)")
+        print("This is likely because Git LFS files were not properly downloaded.")
+        print("Please make sure to:")
+        print("1. Install Git LFS and run 'git lfs pull' to download large files, or")
+        print("2. Manually download the file from GitHub (see README.md for instructions)")
+        print("\nFor more information, see the 'Large Files (Git LFS)' section in README.md")
+        sys.exit(1)
+    
+    print(f"✓ Diamond database verified: {diamond_db_path} ({file_size / 1024 / 1024:.1f} MB)")
+
 def process_fasta_files(input_dir, output_dir, threads=1):
     """Process multiple FASTA files with Prokka"""
     # Create a dedicated directory for Prokka results
@@ -131,6 +154,9 @@ def run_diamond_analysis(faa_dir, diamond_script, output_dir):
     script_dir = os.path.dirname(diamond_script_abs)
     diamond_db = os.path.join(script_dir, "Feature_set", "OG_all_seqs.dmnd")
     og_list = os.path.join(script_dir, "Feature_set", "important_ogs.txt")
+    
+    # Check that the Diamond database exists and has the correct size
+    check_diamond_db(diamond_db)
     
     # Create matches directory within diamond results directory
     matches_dir = os.path.join(diamond_output_dir_abs, "matches")

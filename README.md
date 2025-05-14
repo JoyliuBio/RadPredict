@@ -23,6 +23,53 @@ A web application for radiation resistance prediction in microorganisms based on
    conda activate RadPredict
    ```
 
+## Large Files (Git LFS)
+
+This repository uses Git Large File Storage (LFS) for managing large files, particularly the DIAMOND database file (`Feature_set/OG_all_seqs.dmnd`, ~187MB).
+
+### Option 1: Using Git LFS (Recommended)
+
+1. Install Git LFS:
+   ```
+   # For macOS (using Homebrew)
+   brew install git-lfs
+   
+   # For Ubuntu/Debian
+   sudo apt-get install git-lfs
+   
+   # For CentOS/RHEL
+   sudo yum install git-lfs
+   
+   # For Windows (using Chocolatey)
+   choco install git-lfs
+   ```
+
+2. Initialize Git LFS:
+   ```
+   git lfs install
+   ```
+
+3. If you've already cloned the repository, run:
+   ```
+   cd RadPredict
+   git lfs pull
+   ```
+
+4. Or clone with LFS support directly:
+   ```
+   git lfs clone https://github.com/JoyliuBio/RadPredict.git
+   ```
+
+### Option 2: Manual Download
+
+If you're having issues with Git LFS, you can manually download the large file:
+
+1. Download the DIAMOND database file directly from GitHub:
+   - Visit: https://github.com/JoyliuBio/RadPredict/blob/main/Feature_set/OG_all_seqs.dmnd
+   - Click the "Download" button
+
+2. Place the downloaded file in the `Feature_set` directory of your local repository
+
 ## Usage
 
 1. Start the web application:
