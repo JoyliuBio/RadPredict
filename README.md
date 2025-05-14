@@ -70,12 +70,12 @@ If you're having issues with Git LFS, you can manually download the large file:
 
 2. Replace the existing file in your local repository:
    - Navigate to the `Feature_set` directory in your cloned repository
-   - The existing file is likely only a few KB (LFS pointer file)
+   - The existing file is likely only a few Bytes (LFS pointer file)
    - Replace it with the downloaded file (should be ~187MB)
    - Verify replacement was successful by checking the file size
 
 3. If the program reports an error about the DIAMOND database file, check:
-   - File size should be approximately 187MB, not just a few KB
+   - File size should be approximately 187MB, not just a few Bytes
    - File name is exactly `OG_all_seqs.dmnd` (case sensitive)
    - File is in the correct location: `RadPredict/Feature_set/OG_all_seqs.dmnd`
 
@@ -86,7 +86,7 @@ If you're having issues with Git LFS, you can manually download the large file:
    python run.py
    ```
 
-2. Access the web interface at `http://localhost:5000` in your browser.
+2. Access the web interface at `http://127.0.0.1:5000` in your browser.
 
 3. Upload your genome file in FASTA format and submit for analysis.
 
