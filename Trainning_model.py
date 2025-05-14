@@ -16,6 +16,7 @@ import pickle
 import os
 import shap
 import json
+import sys
 from datetime import datetime
 import matplotlib
 matplotlib.use('Agg')  # Use non-interactive backend
@@ -29,15 +30,19 @@ from IPython.display import display, Image, HTML
 seed = 100
 np.random.seed(seed)
 
-# Create results directory
-results_dir = "/Users/liujiayu/Library/Mobile Documents/com~apple~CloudDocs/Joy/硕士/耐辐射论文/radiation-article/一改/XGBoost/model_results_511"
+# Get script directory
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Create results directory - using a relative path
+results_dir = os.path.join(SCRIPT_DIR, "model_results")
 os.makedirs(results_dir, exist_ok=True)
 
 # Create timestamp for file naming
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-# Read data
-df = pd.read_csv('/Users/liujiayu/Library/Mobile Documents/com~apple~CloudDocs/Joy/硕士/耐辐射论文/radiation-article/一改/XGBoost/input_lasso_31.csv')
+# Read data - using command line argument or default to example data
+input_file = sys.argv[1] if len(sys.argv) > 1 else os.path.join(SCRIPT_DIR, "Example/00/results/diamond_results/presence_matrix_20250513_200601.csv")
+df = pd.read_csv(input_file)
 # Split features and target
 X, y = df.loc[:, df.columns != 'D10'], df['D10']
 

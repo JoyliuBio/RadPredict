@@ -25,9 +25,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from IPython.display import display, HTML
 
-# Default paths for model files
-MODEL_PATH = "/Users/liujiayu/Library/Mobile Documents/com~apple~CloudDocs/Joy/硕士/耐辐射论文/radiation-article/一改/Application/comprehensive_model.pkl"
-MODEL_CONFIG_PATH = "/Users/liujiayu/Library/Mobile Documents/com~apple~CloudDocs/Joy/硕士/耐辐射论文/radiation-article/一改/Application/comprehensive_model.txt"
+# Default paths for model files - using relative paths based on script location
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(SCRIPT_DIR, "comprehensive_model.pkl")
+MODEL_CONFIG_PATH = os.path.join(SCRIPT_DIR, "comprehensive_model.txt")
 
 # D10 transformation and inverse transformation class
 class D10Transformer:
