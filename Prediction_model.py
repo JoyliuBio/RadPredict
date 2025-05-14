@@ -180,10 +180,10 @@ def visualize_predictions(predictions, save_path=None):
         Path to save the visualization
     """
     print("Creating bar plot of predicted D10 values...")
-    # 根据样本数量自动调整图片大小
+    # Automatically adjust image size based on number of samples
     n_samples = len(predictions)
-    width = max(8, n_samples * 0.3)  # 每个样本至少需要0.3英寸宽度
-    height = 8  # 保持高度不变
+    width = max(8, n_samples * 0.3)  # Each sample requires at least 0.3 inches width
+    height = 8  # Keep height fixed
     plt.figure(figsize=(width, height))
     
     # Sort predictions by D10 value for better visualization
@@ -393,18 +393,18 @@ def main():
         
         # 6. Save predictions to CSV
         print("[5/5] Saving results and creating visualizations...")
-        # 只保存样本名称和转换回原始尺度的预测值
+        # Only save sample names and predicted values in original scale
         predictions_to_save = predictions[['Sample', 'Predicted_D10']]
         predictions_path = os.path.join(args.output, f"predicted_d10_values_{timestamp}.csv")
         predictions_to_save.to_csv(predictions_path, index=False)
         print(f"Predictions saved to {predictions_path}")
         
-        # 7. Create visualization - 只保留预测可视化图
+        # 7. Create visualization - Only keep predicted visualization
         # Visualize original scale predictions with color-coded bars
         viz_path = os.path.join(args.output, f"predicted_d10_visualization_{timestamp}.png")
         visualize_predictions(predictions, save_path=viz_path)
         
-        # 仍然输出统计信息到控制台，但不生成文件
+        # Output statistics to console, but do not generate files
         print("\nPrediction Summary Statistics (Original Scale):")
         summary = predictions['Predicted_D10'].describe()
         print(summary)

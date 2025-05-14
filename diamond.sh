@@ -17,7 +17,7 @@ DIAMOND_DB="$2"
 OG_LIST="$3"
 OUTPUT_CSV="$4"
 MATCHES_DIR="$5"
-THREADS=4  # Default threads, can be adjusted
+THREADS=10  # Default threads, can be adjusted
 
 # Check if input directory exists
 if [ ! -d "$INPUT_DIR" ]; then

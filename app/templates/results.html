@@ -230,8 +230,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // Stop polling
                     clearInterval(statusInterval);
-                } else {
+                } else if (data.status === 'pending') {
                     statusBadge.className += 'bg-secondary';
+                } else {
+                    statusBadge.className += 'bg-primary';
                 }
                 
                 // Update file statuses
@@ -249,10 +251,14 @@ document.addEventListener('DOMContentLoaded', function() {
                             // While analysis is processing, show as Processing
                             badge.textContent = 'Processing';
                             badge.className = 'file-status badge bg-warning';
-                        } else {
-                            // 修改这里：改为灰色
+                        } else if (data.status === 'pending') {
+                            // Pending status should be gray
                             badge.textContent = 'Pending';
-                            badge.className = 'file-status badge bg-secondary'; // 改为 bg-secondary
+                            badge.className = 'file-status badge bg-secondary';
+                        } else {
+                            // Any other status
+                            badge.textContent = data.status.charAt(0).toUpperCase() + data.status.slice(1);
+                            badge.className = 'file-status badge bg-primary';
                         }
                     }
                 });
