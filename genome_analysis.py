@@ -44,7 +44,9 @@ def check_diamond_db(diamond_db_path):
         print(f"ERROR: Diamond database file not found: {diamond_db_path}")
         print("Please make sure to:")
         print("1. Install Git LFS and run 'git lfs pull' to download large files, or")
-        print("2. Manually download the file from GitHub (see README.md for instructions)")
+        print("2. Manually download the file from GitHub and replace the existing placeholder:")
+        print("   - Visit: https://github.com/JoyliuBio/RadPredict/blob/main/Feature_set/OG_all_seqs.dmnd")
+        print("   - Download and replace the existing file in the Feature_set directory")
         print("\nFor more information, see the 'Large Files (Git LFS)' section in README.md")
         sys.exit(1)
     
@@ -55,7 +57,10 @@ def check_diamond_db(diamond_db_path):
         print("This is likely because Git LFS files were not properly downloaded.")
         print("Please make sure to:")
         print("1. Install Git LFS and run 'git lfs pull' to download large files, or")
-        print("2. Manually download the file from GitHub (see README.md for instructions)")
+        print("2. Manually download the file from GitHub and replace the existing placeholder:")
+        print("   - Visit: https://github.com/JoyliuBio/RadPredict/blob/main/Feature_set/OG_all_seqs.dmnd")
+        print("   - Download and replace the existing small file (which is just a pointer)")
+        print("   - The correct file should be approximately 187MB in size")
         print("\nFor more information, see the 'Large Files (Git LFS)' section in README.md")
         sys.exit(1)
     
